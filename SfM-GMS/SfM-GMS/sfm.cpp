@@ -25,6 +25,5 @@ int main(int argc, char* argv[])
     imshow("Photonegative", image);
     waitKey(0);
 
-    imwrite("negative.jpg", image);
     return 0;
 }
