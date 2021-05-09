@@ -126,7 +126,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\opencvLib\install\x64\vc16\lib;$(OPENCV_DIR)\lib;$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_xfeatures2d452.lib;opencv_xfeatures2d452d.lib;pcl_common.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_xfeatures2d452.lib;opencv_xfeatures2d452d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -145,7 +145,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\opencvLib\install\x64\vc16\lib;$(OPENCV_DIR)\lib;$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_xfeatures2d452.lib;opencv_xfeatures2d452d.lib;pcl_common.lib;opencv_world452.lib;</AdditionalDependencies>
+      <AdditionalDependencies>opencv_xfeatures2d452.lib;opencv_xfeatures2d452d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

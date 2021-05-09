@@ -5,18 +5,12 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/xfeatures2d.hpp>
+#include <opencv2/viz.hpp>
+#include <opencv2/calib3d.hpp>
 #include <iostream>
-
-//#include <pcl/common/common_headers.h>
-//#include <pcl/features/normal_3d.h>
-//#include <pcl/io/pcd_io.h>
-//#include <pcl/visualization/pcl_visualizer.h>
-//#include <pcl/console/parse.h>
-//#include <pcl/registration/icp.h>
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
-//#include <boost/thread/thread.hpp>
 
 using namespace cv;
 using namespace std;
