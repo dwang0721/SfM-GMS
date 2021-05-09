@@ -1,18 +1,18 @@
 #include "sfm.h"
 int alg = STEREO_SGBM;
 
-// learning reference:
-// https://jayrambhia.com/blog/disparity-mpas
-
 // Tasks:
 // 1. parser and image input 
-// 2. LOGOS application for SfM
-// 3. GMS application for SfM
+// 2. LOGOS application for SfM <-Purrnima
+// 3. GMS application for SfM  <-- Neil
 // 4. baseline implementation
+//     a. how to use match points for disparity map <--- Ahmed
+//     b. how to use match points for reconstruction 3d. <--- Di
 
 // main - a quick test of OpenCV			
 int main(int argc, char* argv[])
 {
+    // ToDo: parser implementation need
     CommandLineParser parser(argc, argv, parserKeys);
     processParser(parser);
 
@@ -37,6 +37,10 @@ int main(int argc, char* argv[])
     imshow("Disparity Map", disp);
     cout << "Done matching" << endl;
     waitKey(0);
+
+    // ToDo: SfM
+
+    // ToDo: Disparity Map
 
     return 0;
 }
