@@ -137,15 +137,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\opencvLib\install\include;C:\opencv\build\include;$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\opencvLib\install\include;C:\opencv\build\include;$(SolutionDir)include;C:\Users\ahnada\OneDrive - Microsoft\Desktop\587\SfM-GMS\SfM-GMS;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\opencvLib\install\x64\vc16\lib;$(OPENCV_DIR)\lib;$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_xfeatures2d452.lib;opencv_xfeatures2d452d.lib;pcl_common.lib;opencv_world452.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\opencvLib\install\x64\vc16\lib;$(OPENCV_DIR)\lib;$(SolutionDir)lib;C:\Users\ahnada\OneDrive - Microsoft\Desktop\587\SfM-GMS\SfM-GMS\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_xfeatures2d452.lib;pcl_common.lib;opencv_world452.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

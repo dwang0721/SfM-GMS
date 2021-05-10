@@ -9,6 +9,25 @@ int alg = STEREO_SGBM;
 //     a. how to use match points for disparity map <--- Ahmed
 //     b. how to use match points for reconstruction 3d. <--- Di
 
+inline void SIFT_detect_and_compute(Mat& img, vector<KeyPoint>& kpts, Mat& desc) {
+    Ptr<Feature2D> sift = SIFT::create(); // create SIFT detector
+    sift->detectAndCompute(img, Mat(), kpts, desc); // call detect and compute function to get keypoints and descriptors
+}
+
+inline void match(Mat& desc1, Mat& desc2, vector<DMatch>& matches, double kDistanceCoef, int kMaxMatchingSize) {
+    matches.clear();
+    Ptr<BFMatcher> desc_matcher = BFMatcher::create(); // create bruteforce matcher
+    desc_matcher->cv::DescriptorMatcher::match(desc1, desc2, matches, Mat()); // calculate matches
+
+    std::sort(matches.begin(), matches.end()); //sort matches
+    while (matches.front().distance * kDistanceCoef < matches.back().distance) { // eliminate some matches based on distance
+        matches.pop_back();
+    }
+    while (matches.size() > kMaxMatchingSize) { // eliminate excess matches
+        matches.pop_back();
+    }
+}
+
 // main - a quick test of OpenCV			
 int main(int argc, char* argv[])
 {
@@ -20,6 +39,13 @@ int main(int argc, char* argv[])
     const Mat img1 = imread("../SourceImages/Disparity_L.jpg");
     const Mat img2 = imread("../SourceImages/Disparity_R.jpg");
     Mat disp;
+
+    Mat img3 = imread("../SourceImages/view0-1.png");
+    Mat img4 = imread("../SourceImages/view2-1.png");
+    cout << "Start background blurring..." << endl;
+    blurDistant(img3, img4, disp);
+    cout << "Done" << endl;
+    waitKey(0);
 
     namedWindow("Left Eye Image", WINDOW_NORMAL);
     resizeWindow("Left Eye Image", img1.cols/4, img1.rows/4);
@@ -39,9 +65,7 @@ int main(int argc, char* argv[])
     waitKey(0);
 
     // ToDo: SfM
-
     // ToDo: Disparity Map
-
     return 0;
 }
 
@@ -86,4 +110,28 @@ void stereo_match(const Mat &img1, const Mat &img2, Mat &disparity){
     sbm->setDisp12MaxDiff(1);
     sbm->compute(g1, g2, disparity);
     normalize(disparity, disparity, 0, 255, NORM_MINMAX, CV_8U);
+}
+
+void blurDistant( Mat& img1, Mat& img2, Mat& disparity) {
+    cout << "inside blurDistant" << endl;
+    Mat image_blurred;
+    stereo_match(img1,img2,disparity);
+    cout << "Image size is " << img1.rows << " and " << img1.cols << endl;
+    //imshow("Blur Distant - Disparity image", disparity);
+    GaussianBlur(img1, image_blurred, Size(15,15), 0);
+    cv::Size s = disparity.size();
+    cout << "disparity matrix is " << s.height << " and " << s.width << endl;
+    for (int i = 0; i < img1.rows-3; i++) {
+        cout << i << endl;
+        for (int j = 0; j < img1.cols-3; j++) {
+            if (disparity.at<int>(i, j) >= 0 && disparity.at <int> (i, j) <= 10) {
+                image_blurred.at<cv::Vec3b>(i, j)[0] = img1.at<cv::Vec3b>(i, j)[0];
+                image_blurred.at<cv::Vec3b>(i, j)[1] = img1.at<cv::Vec3b>(i, j)[1] ;
+                image_blurred.at<cv::Vec3b>(i, j)[2] = img1.at<cv::Vec3b>(i, j)[2] ;
+            }
+        }
+    }
+    namedWindow("Blurred imaged based on depth", WINDOW_NORMAL);
+    imshow("Blurred imaged based on depth", image_blurred);
+    waitKey();
 }

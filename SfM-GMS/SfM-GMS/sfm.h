@@ -39,3 +39,4 @@ enum { STEREO_SGBM = 1, LOGOS = 2, GMS = 3};
 void processParser(CommandLineParser parser);
 void printHelp();
 void stereo_match(const Mat &img1, const Mat &img2, Mat &disparity);
+void blurDistant(Mat& img1, Mat& img2, Mat& disparity);
