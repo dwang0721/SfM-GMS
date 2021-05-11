@@ -38,6 +38,27 @@ int main(int argc, char* argv[])
     cout << "Done matching" << endl;
     waitKey(0);
 
+    // GMS
+    Ptr<SIFT> detector = SIFT::create();
+    vector<KeyPoint> keypoints1, keypoints2;
+    Mat descriptor1, descriptor2;
+    // Obtain keypoints and descriptors
+    detector->detectAndCompute(img1, noArray(), keypoints1, descriptor1);
+    detector->detectAndCompute(img2, noArray(), keypoints2, descriptor2);
+    Ptr<BFMatcher> matcher = BFMatcher::create();
+    vector<DMatch> matches, matchesGMS;
+    // Match two images' descriptors
+    matcher->match(descriptor1, descriptor2, matches);
+    cv::xfeatures2d::matchGMS(img1.size(), img2.size(), keypoints1, keypoints2, matches, matchesGMS);
+    Mat image_show;
+    drawMatches(img1, keypoints1, img2, keypoints2, matchesGMS, image_show);
+    namedWindow("Match Image", WINDOW_NORMAL);
+    float SCALE = 1.0;
+    // Scale down the window size
+    resizeWindow("Match Image", image_show.cols / SCALE, image_show.rows / SCALE);
+    imshow("Match Image", image_show);
+    waitKey(0);
+
     return 0;
 }
 
