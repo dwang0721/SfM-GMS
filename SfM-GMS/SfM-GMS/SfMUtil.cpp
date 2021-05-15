@@ -44,6 +44,7 @@ void structureFromMotion(Mat& img1, Mat& img2)
 
     // find camera matrix
     Mat cameraMatrix;
+    // do calibration.
 
     // find essential matrix
     Mat inliers;
