@@ -38,25 +38,54 @@ int main(int argc, char* argv[])
     cout << "Done matching" << endl;
     waitKey(0);
 
-    // GMS
     Ptr<SIFT> detector = SIFT::create();
     vector<KeyPoint> keypoints1, keypoints2;
     Mat descriptor1, descriptor2;
     // Obtain keypoints and descriptors
     detector->detectAndCompute(img1, noArray(), keypoints1, descriptor1);
     detector->detectAndCompute(img2, noArray(), keypoints2, descriptor2);
-    Ptr<BFMatcher> matcher = BFMatcher::create();
+    Ptr<BFMatcher> matcher1 = BFMatcher::create();
     vector<DMatch> matches, matchesGMS;
     // Match two images' descriptors
-    matcher->match(descriptor1, descriptor2, matches);
+    matcher1->match(descriptor1, descriptor2, matches);
+    // GMS
     cv::xfeatures2d::matchGMS(img1.size(), img2.size(), keypoints1, keypoints2, matches, matchesGMS);
-    Mat image_show;
-    drawMatches(img1, keypoints1, img2, keypoints2, matchesGMS, image_show);
-    namedWindow("Match Image", WINDOW_NORMAL);
+
+    Ptr<FlannBasedMatcher> matcher2 = FlannBasedMatcher::create();
+    BOWKMeansTrainer bow(50);
+    Mat dict = bow.cluster(descriptor1);
+    vector<int> nn1, nn2;
+    vector<DMatch> m1, m2, logosMatches;
+    matcher2->add(dict);
+    matcher2->match(descriptor1, m1);
+    matcher2->match(descriptor2, m2);
+
+    for (auto m : m1) {
+        nn1.push_back(m.trainIdx);
+    }
+    for (auto m : m2) {
+        nn2.push_back(m.trainIdx);
+    }
+    // LOGOS
+    cv::xfeatures2d::matchLOGOS(keypoints1, keypoints2, nn1, nn2, logosMatches);
+
+
+    Mat image_show1;
+    drawMatches(img1, keypoints1, img2, keypoints2, matchesGMS, image_show1);
+    namedWindow("GMS", WINDOW_NORMAL);
     float SCALE = 1.0;
     // Scale down the window size
-    resizeWindow("Match Image", image_show.cols / SCALE, image_show.rows / SCALE);
-    imshow("Match Image", image_show);
+    resizeWindow("GMS", image_show1.cols / SCALE, image_show1.rows / SCALE);
+    imshow("GMS", image_show1);
+    waitKey(0);
+    
+    Mat image_show2;
+    drawMatches(img1, keypoints1, img2, keypoints2, logosMatches, image_show2, Scalar::all(-1),
+        Scalar::all(-1), vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+
+    namedWindow("LOGOS", WINDOW_NORMAL);
+    resizeWindow("LOGOS", image_show2.cols / SCALE, image_show2.rows / SCALE);  // SCALE = 32 worked well for my system
+    imshow("LOGOS", image_show2);
     waitKey(0);
 
     return 0;
