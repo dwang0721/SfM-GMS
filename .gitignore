@@ -244,3 +244,4 @@ paket-files/
 .idea/
 *.sln.iml
 SfM-GMS/SfM-GMS/output.jpg
+.vcxproj
