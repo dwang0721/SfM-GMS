@@ -12,6 +12,9 @@
 #include <Eigen/Core>
 #include <Eigen/Dense>
 
+#include "FeatureMatchUtil.h"
+#include "SfMUtil.h"
+
 using namespace cv;
 using namespace std;
 
