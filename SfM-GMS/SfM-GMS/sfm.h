@@ -13,6 +13,7 @@
 #include <Eigen/Dense>
 
 #include "FeatureMatchUtil.h"
+#include "SfMUtil.h"
 
 using namespace cv;
 using namespace std;
@@ -36,4 +37,3 @@ void processParser(CommandLineParser parser);
 void printHelp();
 void stereo_match(const Mat &img1, const Mat &img2, Mat &disparity);
 void blurDistant(Mat& img1, Mat& img2, Mat& disparity);
-void structureFromMotion(Mat &img1, Mat &img2);

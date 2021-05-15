@@ -151,10 +151,12 @@
   <ItemGroup>
     <ClCompile Include="sfm.cpp" />
     <ClCompile Include="FeatureMatchUtil.cpp" />
+    <ClCompile Include="SfMUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sfm.h" />
     <ClInclude Include="FeatureMatchUtil.h" />
+    <ClInclude Include="SfMUtil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
