@@ -48,3 +48,26 @@ inline void match(Mat& desc1, Mat& desc2, vector<DMatch>& matches, double kDista
         matches.pop_back();
     }
 }
+
+void match_LOGOS(Mat& desc1, Mat& desc2, vector<KeyPoint>& kp1,
+	vector<KeyPoint>& kp2, vector<DMatch>& logos_matches)
+{
+	vector<int> nn1, nn2;
+
+	BOWKMeansTrainer bow(num_words);
+	Mat dict = bow.cluster(desc1);
+	vector<DMatch> m1, m2, logosMatches;
+	Ptr<FlannBasedMatcher> matcher = FlannBasedMatcher::create();
+	matcher->add(dict);
+	matcher->match(desc1, m1);
+	matcher->match(desc2, m2);
+
+	for (auto m : m1) {
+		nn1.push_back(m.trainIdx);
+	}
+	for (auto m : m2) {
+		nn2.push_back(m.trainIdx);
+	}
+
+	cv::xfeatures2d::matchLOGOS(kp1, kp2, nn1, nn2, logos_matches);
+}

@@ -1,4 +1,5 @@
 #include "sfm.h"
+#include "FeatureMatchUtil.h"
 int alg = STEREO_SGBM;
 
 // Tasks:
@@ -9,6 +10,34 @@ int alg = STEREO_SGBM;
 //     a. how to use match points for disparity map <--- Ahmed
 //     b. how to use match points for reconstruction 3d. <--- Di
 
+void test_LOGOS(Mat& image1, Mat& image2)
+{
+	vector<DMatch> logos_matches;
+	vector<KeyPoint> kp1, kp2;
+
+	Mat descriptor1, descriptor2;
+	const int nFeatures = 5000;
+	Ptr<SIFT> detector = SIFT::create(nFeatures);
+
+
+	detector->detectAndCompute(image1, noArray(), kp1, descriptor1);
+	// Detects keypoints and computes sift descriptors for image1
+
+	detector->detectAndCompute(image2, noArray(), kp2, descriptor2);
+	// Detects keypoints and computes sift descriptors for image2
+
+	//----------------------------------------------------------------
+	match_LOGOS(descriptor1, descriptor2, kp1, kp2, logos_matches);
+	Mat output;
+
+	drawMatches(image1, kp1, image2, kp2, logos_matches, output, Scalar::all(-1),
+		Scalar::all(-1), vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+	const int SCALE = 4;
+	namedWindow("output", WINDOW_NORMAL);
+	resizeWindow("output", output.cols / SCALE, output.rows / SCALE);
+	imshow("output", output);
+	waitKey(0);
+}
 
 // main - a quick test of OpenCV			
 int main(int argc, char* argv[])
@@ -16,7 +45,9 @@ int main(int argc, char* argv[])
     // ToDo: parser implementation need
     CommandLineParser parser(argc, argv, parserKeys);
     processParser(parser);
-
+	Mat image1 = imread("../SourceImages/L1.jpg");
+	Mat image2 = imread("../SourceImages/M1.jpg");
+	test_LOGOS(image1, image2);
     // initialize input
     const Mat img1 = imread("../SourceImages/Disparity_L.jpg");
     const Mat img2 = imread("../SourceImages/Disparity_R.jpg");
@@ -24,6 +55,7 @@ int main(int argc, char* argv[])
 
     Mat img3 = imread("../SourceImages/view0-1.png");
     Mat img4 = imread("../SourceImages/view2-1.png");
+	
     //cout << "Start background blurring..." << endl;
     //blurDistant(img3, img4, disp);
     //cout << "Done" << endl;
