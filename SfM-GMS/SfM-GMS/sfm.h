@@ -5,14 +5,15 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/xfeatures2d.hpp>
-#include <opencv2/viz.hpp>
+//#include <opencv2/viz.hpp>
 #include <opencv2/calib3d.hpp>
 #include <iostream>
 
-#include <Eigen/Core>
-#include <Eigen/Dense>
+//#include <Eigen/Core>
+//#include <Eigen/Dense>
 
 #include "FeatureMatchUtil.h"
+#include "CalibrationUtil.h"
 #include "SfMUtil.h"
 
 using namespace cv;
@@ -29,6 +30,24 @@ const String parserKeys =
 ;
 
 enum { STEREO_SGBM = 1, LOGOS = 2, GMS = 3};
+
+const float SCALE = 2.0;
+
+vector<string> files = {"../CalibrationImages/IMG_0.jpg", 
+                        "../CalibrationImages/IMG_1.jpg",
+                        "../CalibrationImages/IMG_2.jpg",
+                        "../CalibrationImages/IMG_3.jpg",
+                        "../CalibrationImages/IMG_4.jpg",
+                        "../CalibrationImages/IMG_5.jpg",
+                        "../CalibrationImages/IMG_6.jpg",
+                        "../CalibrationImages/IMG_7.jpg",
+                        "../CalibrationImages/IMG_8.jpg",
+                        "../CalibrationImages/IMG_9.jpg",
+                        };
+
+vector<vector<Point3f>> objectPoints;
+vector<vector<Point2f>> imagePoints;
+Size board_size(6,9);
 
 // ----------------------------------
 // ---- Function Declaration --------
