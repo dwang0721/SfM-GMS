@@ -1,6 +1,6 @@
 #include "CalibrationUtil.h"
 
-int addChessboardPoints(const vector<string>& imgList, Size& boardSize, vector<vector<Point3f>> objPtr, vector<vector<Point2f>>imgPtr){
+int addChessboardPoints(const vector<string>& imgList, Size& boardSize, vector<vector<Point3f>>&  objPtr, vector<vector<Point2f>>& imgPtr){
     
     // points on the chessboard
     vector<Point2f> imageCorners;
@@ -42,11 +42,11 @@ int addChessboardPoints(const vector<string>& imgList, Size& boardSize, vector<v
         }
 
         // draw the Corners
-        drawChessboardCorners(greyImage, boardSize, imageCorners, found);
-        namedWindow("Corners on Chessboard", WINDOW_NORMAL);
-        resizeWindow("Corners on Chessboard", greyImage.cols/4, greyImage.rows/4);
-        imshow("Corners on Chessboard", greyImage);
-        waitKey(0);
+        //drawChessboardCorners(greyImage, boardSize, imageCorners, found);
+        //namedWindow("Corners on Chessboard", WINDOW_NORMAL);
+        //resizeWindow("Corners on Chessboard", greyImage.cols/4, greyImage.rows/4);
+        //imshow("Corners on Chessboard", greyImage);
+        //waitKey(0);
     }   
     return successes;
 }

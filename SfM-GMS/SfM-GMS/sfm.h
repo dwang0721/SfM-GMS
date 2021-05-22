@@ -47,7 +47,11 @@ vector<string> files = {"../CalibrationImages/IMG_0.jpg",
 
 vector<vector<Point3f>> objectPoints;
 vector<vector<Point2f>> imagePoints;
+Mat cameraMatrix, distCoeffs;
+vector<Mat> rvecs, tvecs;
 Size board_size(6,9);
+vector<KeyPoint> keypoints1, keypoints2;
+Mat descriptors1, descriptors2;
 
 // ----------------------------------
 // ---- Function Declaration --------

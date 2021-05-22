@@ -17,4 +17,5 @@ using namespace std;
 // ----------------------------------
 // ---- Function Declaration --------
 // ----------------------------------
-void structureFromMotion(Mat& img1, Mat& img2);
+void structureFromMotion(Mat& img1, Mat& img2, Mat& cameraMatrix);
+Mat computeProjMat(Mat cameraMatrix, Mat rotationMatrix, Mat transMatrix);
