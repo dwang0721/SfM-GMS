@@ -18,8 +18,8 @@ int main(int argc, char* argv[])
 
 
     // ------------- Feature Match: Logos and GMS-------------------  
-    const Mat img1 = imread("../SourceImages/Disparity_L.jpg");
-    const Mat img2 = imread("../SourceImages/Disparity_R.jpg");
+    //const Mat img1 = imread("../SourceImages/Disparity_L.jpg");
+    //const Mat img2 = imread("../SourceImages/Disparity_R.jpg");
 
     //Ptr<SIFT> detector = SIFT::create();
     //vector<KeyPoint> keypoints1, keypoints2;
@@ -71,7 +71,11 @@ int main(int argc, char* argv[])
     //waitKey(0);
 
 
-    // ----------- calibration -----------------    
+    // ----------- calibration -----------------  
+    Mat cameraMatrix, distCoeffs;
+    vector<vector<Point3f>> objectPoints;
+    vector<vector<Point2f>> imagePoints;
+
     addChessboardPoints(files, board_size, objectPoints, imagePoints);
     Mat img = cv::imread("../CalibrationImages/IMG_0.jpg");
     calibrateCamera(objectPoints, // the 3D points
@@ -81,11 +85,24 @@ int main(int argc, char* argv[])
                     distCoeffs,   // output distortion matrix
                     rvecs, tvecs // Rs, Ts 
                     );
+    cout << "Camera Matrix :\n" << cameraMatrix << endl;
+    waitKey(0);
 
     // --------- SfM Implementation --------------
-    Mat imgL = imread("../SourceImages/pikaL.jpg");
-    Mat imgR = imread("../SourceImages/pikaR.jpg");
-    structureFromMotion(imgL, imgR, cameraMatrix);
+    Mat img1 = imread("../SourceImages/PikaBun1.jpg");
+    Mat img2 = imread("../SourceImages/PikaBun2.jpg");
+    Mat img3 = imread("../SourceImages/PikaBun3.jpg");
+    Mat img4 = imread("../SourceImages/PikaBun4.jpg");
+    vector<Vec3d> points3D;
+    structureFromMotion(img1, img4, cameraMatrix, distCoeffs, points3D);
+
+    // draw points on screen
+    Viz3d window;
+    window.showWidget("coordinate", viz::WCoordinateSystem());
+    window.setBackgroundColor(cv::viz::Color::black());
+    window.showWidget("points", viz::WCloud(points3D, viz::Color::green()));
+    window.spin();
+    waitKey(0);
 
     return 0;
 }
