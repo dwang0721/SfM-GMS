@@ -7,7 +7,7 @@
 *   @param desc, descriptors.
 */
 void SIFTDetectAndCompute(Mat& img, vector<KeyPoint>& kpts, Mat& desc) {
-    Ptr<Feature2D> sift = SIFT::create();
+    Ptr<Feature2D> sift = SIFT::create(10000);
     sift->detectAndCompute(img, Mat(), kpts, desc);
 }
 

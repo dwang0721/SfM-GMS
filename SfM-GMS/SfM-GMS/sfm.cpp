@@ -17,33 +17,92 @@ int main(int argc, char* argv[])
     //processParser(parser);
 
 
-    // ------------- Disparity Map --------------------  
-    const Mat img5 = imread("../SourceImages/Disparity_L.jpg");
-    const Mat img6 = imread("../SourceImages/Disparity_R.jpg");
-    Ptr<SIFT> detector = SIFT::create();
-    vector<KeyPoint> keypoints1, keypoints2;
-    Mat descriptor1, descriptor2;
-    Mat image_show;
-    // Obtain keypoints and descriptors
-    detector->detectAndCompute(img5, noArray(), keypoints1, descriptor1);
-    detector->detectAndCompute(img6, noArray(), keypoints2, descriptor2);
-    Ptr<BFMatcher> matcher = BFMatcher::create();
-    vector<DMatch> matches, matchesGMS;
-    // Match two images' descriptors
-    // matcher->match(descriptor1, descriptor2, matches);
-    cv::xfeatures2d::matchGMS(img5.size(), img6.size(), keypoints1, keypoints2, matches, matchesGMS);    
-    drawMatches(img5, keypoints1, img6, keypoints2, matchesGMS, image_show);
-    namedWindow("Match Image", WINDOW_NORMAL);
-    float SCALE = 1.0;
-    // Scale down the window size
-    resizeWindow("Match Image", image_show.cols / SCALE, image_show.rows / SCALE);
-    imshow("Match Image", image_show);
+    // ------------- Feature Match: Logos and GMS-------------------  
+    //const Mat img1 = imread("../SourceImages/Disparity_L.jpg");
+    //const Mat img2 = imread("../SourceImages/Disparity_R.jpg");
+
+    //Ptr<SIFT> detector = SIFT::create();
+    //vector<KeyPoint> keypoints1, keypoints2;
+    //Mat descriptor1, descriptor2;
+    //// Obtain keypoints and descriptors
+    //detector->detectAndCompute(img1, noArray(), keypoints1, descriptor1);
+    //detector->detectAndCompute(img2, noArray(), keypoints2, descriptor2);
+    //Ptr<BFMatcher> matcher1 = BFMatcher::create();
+    //vector<DMatch> matches, matchesGMS;
+    //// Match two images' descriptors
+    //matcher1->match(descriptor1, descriptor2, matches);
+    //// GMS
+    //cv::xfeatures2d::matchGMS(img1.size(), img2.size(), keypoints1, keypoints2, matches, matchesGMS);
+
+    //Ptr<FlannBasedMatcher> matcher2 = FlannBasedMatcher::create();
+    //BOWKMeansTrainer bow(50);
+    //Mat dict = bow.cluster(descriptor1);
+    //vector<int> nn1, nn2;
+    //vector<DMatch> m1, m2, logosMatches;
+    //matcher2->add(dict);
+    //matcher2->match(descriptor1, m1);
+    //matcher2->match(descriptor2, m2);
+
+    //for (auto m : m1) {
+    //    nn1.push_back(m.trainIdx);
+    //}
+    //for (auto m : m2) {
+    //    nn2.push_back(m.trainIdx);
+    //}
+    //// LOGOS
+    //cv::xfeatures2d::matchLOGOS(keypoints1, keypoints2, nn1, nn2, logosMatches);
+
+    //Mat image_show1;
+    //drawMatches(img1, keypoints1, img2, keypoints2, matchesGMS, image_show1);
+    //namedWindow("GMS", WINDOW_NORMAL);
+    //
+    //// Scale down the window size
+    //resizeWindow("GMS", image_show1.cols / SCALE, image_show1.rows / SCALE);
+    //imshow("GMS", image_show1);
+    //waitKey(0);
+
+    //Mat image_show2;
+    //drawMatches(img1, keypoints1, img2, keypoints2, logosMatches, image_show2, Scalar::all(-1),
+    //    Scalar::all(-1), vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+
+    //namedWindow("LOGOS", WINDOW_NORMAL);
+    //resizeWindow("LOGOS", image_show2.cols / SCALE, image_show2.rows / SCALE);  // SCALE = 32 worked well for my system
+    //imshow("LOGOS", image_show2);
+    //waitKey(0);
+
+
+    // ----------- calibration -----------------  
+    Mat cameraMatrix, distCoeffs;
+    vector<vector<Point3f>> objectPoints;
+    vector<vector<Point2f>> imagePoints;
+
+    addChessboardPoints(files, board_size, objectPoints, imagePoints);
+    Mat img = cv::imread("../CalibrationImages/IMG_0.jpg");
+    calibrateCamera(objectPoints, // the 3D points
+                    imagePoints,  // the image points
+                    img.size(),   // image size
+                    cameraMatrix, // output camera matrix
+                    distCoeffs,   // output distortion matrix
+                    rvecs, tvecs // Rs, Ts 
+                    );
+    cout << "Camera Matrix :\n" << cameraMatrix << endl;
     waitKey(0);
 
     // --------- SfM Implementation --------------
-    //Mat imgL = imread("../SourceImages/L1.jpg");
-    //Mat imgR = imread("../SourceImages/M1.jpg");
-    //structureFromMotion(imgL, imgR);
+    Mat img1 = imread("../SourceImages/PikaBun1.jpg");
+    Mat img2 = imread("../SourceImages/PikaBun2.jpg");
+    Mat img3 = imread("../SourceImages/PikaBun3.jpg");
+    Mat img4 = imread("../SourceImages/PikaBun4.jpg");
+    vector<Vec3d> points3D;
+    structureFromMotion(img1, img4, cameraMatrix, distCoeffs, points3D);
+
+    // draw points on screen
+    Viz3d window;
+    window.showWidget("coordinate", viz::WCoordinateSystem());
+    window.setBackgroundColor(cv::viz::Color::black());
+    window.showWidget("points", viz::WCloud(points3D, viz::Color::green()));
+    window.spin();
+    waitKey(0);
 
     return 0;
 }
