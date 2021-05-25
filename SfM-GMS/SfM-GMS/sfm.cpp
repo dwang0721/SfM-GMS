@@ -9,17 +9,17 @@ int alg = STEREO_SGBM;
 //     a. how to use match points for disparity map <--- Ahmed
 //     b. how to use match points for reconstruction 3d. <--- Di
 
-// main - a quick test of OpenCV			
+			
 int main(int argc, char* argv[])
 {
     // ToDo: parser implementation need
     // CommandLineParser parser(argc, argv, parserKeys);
     // processParser(parser);
 
-    // ------------- Feature Match: Logos and GMS-------------------  
-    Mat img1= imread("../SourceImages/Disparity_L.jpg");
+    Mat img1 = imread("../SourceImages/Disparity_L.jpg");
     Mat img2 = imread("../SourceImages/Disparity_R.jpg");
 
+    // ------------- Feature Match: Logos and GMS ------------------  
     // GMS match
     vector<DMatch> matchesGMS;
     SIFT_matchGMA(img1, img2, matchesGMS, true);
@@ -27,6 +27,8 @@ int main(int argc, char* argv[])
     // Logos Match
     vector<DMatch> matchesLOGOS;
     SIFT_matchLOGOS(img1, img2, matchesLOGOS, true);
+
+    // -------------- Ahmed: disparity map -------------------
 
     // ----------- calibration -----------------  
     Mat cameraMatrix, distCoeffs;
@@ -43,7 +45,6 @@ int main(int argc, char* argv[])
                     rvecs, tvecs // Rs, Ts 
                     );
     cout << "Camera Matrix :\n" << cameraMatrix << endl;
-    waitKey(0);
 
     // --------- SfM Implementation --------------
     Mat imgL = imread("../SourceImages/PikaBun1.jpg");
@@ -51,7 +52,7 @@ int main(int argc, char* argv[])
     vector<Vec3d> points3D;
     structureFromMotion(imgL, imgR, cameraMatrix, distCoeffs, points3D);
 
-    // draw points on screen
+    // --------- Draw 3d point cloud --------------
     Viz3d window;
     window.showWidget("coordinate", viz::WCoordinateSystem());
     window.setBackgroundColor(cv::viz::Color::black());
@@ -84,4 +85,3 @@ void processParser(CommandLineParser parser){
 void printHelp(){
    printf("\nhelp message here!");
 }
-
