@@ -13,63 +13,20 @@ int alg = STEREO_SGBM;
 int main(int argc, char* argv[])
 {
     // ToDo: parser implementation need
-    //CommandLineParser parser(argc, argv, parserKeys);
-    //processParser(parser);
-
+    // CommandLineParser parser(argc, argv, parserKeys);
+    // processParser(parser);
 
     // ------------- Feature Match: Logos and GMS-------------------  
-    //const Mat img1 = imread("../SourceImages/Disparity_L.jpg");
-    //const Mat img2 = imread("../SourceImages/Disparity_R.jpg");
+    Mat img1= imread("../SourceImages/Disparity_L.jpg");
+    Mat img2 = imread("../SourceImages/Disparity_R.jpg");
 
-    //Ptr<SIFT> detector = SIFT::create();
-    //vector<KeyPoint> keypoints1, keypoints2;
-    //Mat descriptor1, descriptor2;
-    //// Obtain keypoints and descriptors
-    //detector->detectAndCompute(img1, noArray(), keypoints1, descriptor1);
-    //detector->detectAndCompute(img2, noArray(), keypoints2, descriptor2);
-    //Ptr<BFMatcher> matcher1 = BFMatcher::create();
-    //vector<DMatch> matches, matchesGMS;
-    //// Match two images' descriptors
-    //matcher1->match(descriptor1, descriptor2, matches);
-    //// GMS
-    //cv::xfeatures2d::matchGMS(img1.size(), img2.size(), keypoints1, keypoints2, matches, matchesGMS);
+    // GMS match
+    vector<DMatch> matchesGMS;
+    SIFT_matchGMA(img1, img2, matchesGMS, true);
 
-    //Ptr<FlannBasedMatcher> matcher2 = FlannBasedMatcher::create();
-    //BOWKMeansTrainer bow(50);
-    //Mat dict = bow.cluster(descriptor1);
-    //vector<int> nn1, nn2;
-    //vector<DMatch> m1, m2, logosMatches;
-    //matcher2->add(dict);
-    //matcher2->match(descriptor1, m1);
-    //matcher2->match(descriptor2, m2);
-
-    //for (auto m : m1) {
-    //    nn1.push_back(m.trainIdx);
-    //}
-    //for (auto m : m2) {
-    //    nn2.push_back(m.trainIdx);
-    //}
-    //// LOGOS
-    //cv::xfeatures2d::matchLOGOS(keypoints1, keypoints2, nn1, nn2, logosMatches);
-
-    //Mat image_show1;
-    //drawMatches(img1, keypoints1, img2, keypoints2, matchesGMS, image_show1);
-    //namedWindow("GMS", WINDOW_NORMAL);
-    //
-    //// Scale down the window size
-    //resizeWindow("GMS", image_show1.cols / SCALE, image_show1.rows / SCALE);
-    //imshow("GMS", image_show1);
-    //waitKey(0);
-
-    //Mat image_show2;
-    //drawMatches(img1, keypoints1, img2, keypoints2, logosMatches, image_show2, Scalar::all(-1),
-    //    Scalar::all(-1), vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-
-    //namedWindow("LOGOS", WINDOW_NORMAL);
-    //resizeWindow("LOGOS", image_show2.cols / SCALE, image_show2.rows / SCALE);  // SCALE = 32 worked well for my system
-    //imshow("LOGOS", image_show2);
-    //waitKey(0);
-
+    // Logos Match
+    vector<DMatch> matchesLOGOS;
+    SIFT_matchLOGOS(img1, img2, matchesLOGOS, true);
 
     // ----------- calibration -----------------  
     Mat cameraMatrix, distCoeffs;
@@ -89,12 +46,10 @@ int main(int argc, char* argv[])
     waitKey(0);
 
     // --------- SfM Implementation --------------
-    Mat img1 = imread("../SourceImages/PikaBun1.jpg");
-    Mat img2 = imread("../SourceImages/PikaBun2.jpg");
-    Mat img3 = imread("../SourceImages/PikaBun3.jpg");
-    Mat img4 = imread("../SourceImages/PikaBun4.jpg");
+    Mat imgL = imread("../SourceImages/PikaBun1.jpg");
+    Mat imgR = imread("../SourceImages/PikaBun4.jpg");
     vector<Vec3d> points3D;
-    structureFromMotion(img1, img4, cameraMatrix, distCoeffs, points3D);
+    structureFromMotion(imgL, imgR, cameraMatrix, distCoeffs, points3D);
 
     // draw points on screen
     Viz3d window;

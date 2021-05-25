@@ -62,8 +62,7 @@ void structureFromMotion(Mat& img1, Mat& img2, Mat& cameraMatrix, Mat& distCoeff
     //Mat projMatrix1 =  cameraMatrix * RT1;
     //Mat projMatrix2 = computeProjMat(cameraMatrix, rotation, translation);
 
-    //------------------
-    // compose generic projection matrix
+    //-------Project Matrix without intrinsic-----------
     cv::Mat projMatrix1(3, 4, CV_64F, 0.); 
     cv::Mat diag(cv::Mat::eye(3, 3, CV_64F));
     diag.copyTo(projMatrix1(cv::Rect(0, 0, 3, 3)));
@@ -147,9 +146,9 @@ void triangulate_OpenCV(const cv::Mat& projMatrix1, const cv::Mat& projMatrix2, 
     // recover 3d coordinates
     for (int i = 0; i < triangCoords4D.cols; i++) {
         Vec4d point4D = triangCoords4D.col(i);
-        float x = point4D[0] / point4D[3];
-        float y = point4D[1] / point4D[3];
-        float z = point4D[2] / point4D[3];
+        double x = point4D[0] / point4D[3];
+        double y = point4D[1] / point4D[3];
+        double z = point4D[2] / point4D[3];
         Vec3d p(x, y, z);
         pts3D.push_back(p);
         cout << "point 3d" << i << ": " << p << endl;
