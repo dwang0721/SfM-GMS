@@ -23,11 +23,12 @@ int main(int argc, char* argv[])
     // GMS match
     vector<DMatch> matchesGMS,matches;
     SIFT_match(img1, img2, matches, true);
-    SIFT_matchGMA(img1, img2, matchesGMS, true);
+    SIFT_matchGMA(img1, img2, matchesGMS, true, false, false);
     Mat rot_img2 = img_rotate(img2,180.0);
-    vector<DMatch> matchesGMS2,matches2;
+    vector<DMatch> matchesLOGOS2,matchesGMS2,matches2;
     SIFT_match(img1, rot_img2, matches2, true);
-    SIFT_matchGMA(img1, rot_img2, matchesGMS2, true);
+    SIFT_matchGMA(img1, rot_img2, matchesGMS2, true, true, true);
+    SIFT_matchLOGOS(img1, rot_img2, matchesLOGOS2, true);
 
 
     // Logos Match

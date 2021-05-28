@@ -49,7 +49,7 @@ inline void match(Mat& desc1, Mat& desc2, vector<DMatch>& matches, double kDista
     }
 }
 
-void SIFT_matchGMA(Mat& img1, Mat& img2, vector<DMatch>& matchesGMS, bool draw_result){
+void SIFT_matchGMA(Mat& img1, Mat& img2, vector<DMatch>& matchesGMS, bool draw_result, bool check_rotation, bool check_scale){
     Mat descriptor1, descriptor2;
     vector<KeyPoint> keypoints1, keypoints2;
     SIFTDetectAndCompute(img1, keypoints1, descriptor1);
@@ -59,7 +59,7 @@ void SIFT_matchGMA(Mat& img1, Mat& img2, vector<DMatch>& matchesGMS, bool draw_r
     vector<DMatch> matches;
     matcherBF->match(descriptor1, descriptor2, matches);
     // GMS
-    cv::xfeatures2d::matchGMS(img1.size(), img2.size(), keypoints1, keypoints2, matches, matchesGMS);
+    cv::xfeatures2d::matchGMS(img1.size(), img2.size(), keypoints1, keypoints2, matches, matchesGMS, check_rotation,check_scale);
 
     if (draw_result){
         Mat image_show1;
