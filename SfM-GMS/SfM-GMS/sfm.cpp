@@ -1,5 +1,5 @@
 #include "sfm.h"
-int alg = STEREO_SGBM;
+int alg = DEFAULT_SIFT;
 
 // Tasks:
 // 1. parser and image input 
@@ -9,47 +9,39 @@ int alg = STEREO_SGBM;
 //     a. how to use match points for disparity map <--- Ahmed
 //     b. how to use match points for reconstruction 3d. <--- Di
 
-// main - a quick test of OpenCV			
+			
 int main(int argc, char* argv[])
 {
     // ToDo: parser implementation need
     // CommandLineParser parser(argc, argv, parserKeys);
     // processParser(parser);
-
-    // ------------- Feature Match: Logos and GMS-------------------  
-    Mat img1= imread("../SourceImages/Disparity_L.jpg");
+    
+    Mat img1 = imread("../SourceImages/Disparity_L.jpg");
     Mat img2 = imread("../SourceImages/Disparity_R.jpg");
+    vector<KeyPoint> kpts1, kpts2;
+    Mat desc1, desc2;
+    vector<DMatch> matches;
+
+    // ------------- Feature Match: Logos and GMS ------------------ 
+    cout << "-------- Feature Match: GMS vs LOGOS ---------" << endl; 
 
     // GMS match
-    vector<DMatch> matchesGMS,matches;
-    // SIFT with normal images
-    SIFT_match(img1, img2, matches, true);
-    // GMS with normal images
-    SIFT_matchGMA(img1, img2, matchesGMS, true, false, false);
-    Mat rot_img2 = img_rotate(img2,180.0);
-    Mat scale_img2;
-    resize(img2, scale_img2, Size(500, 500));
-    vector<DMatch> matchesLOGOS2,matchesGMS2,matches2;
-    // Matching with image2 rotate 180 degrees
-    SIFT_match(img1, rot_img2, matches2, true);
-    SIFT_matchGMA(img1, rot_img2, matchesGMS2, true, true, true);
-    SIFT_matchLOGOS(img1, rot_img2, matchesLOGOS2, true);
-    vector<DMatch> matchesLOGOS3, matchesGMS3, matches3;
-    SIFT_match(img1, scale_img2, matches3, true);
-    SIFT_matchGMA(img1, scale_img2, matchesGMS3, true, true, true);
-
-
+    vector<DMatch> matchesGMS;
+    SIFT_matchGMS(img1, img2,  kpts1, kpts2, desc1, desc2, matchesGMS, true);
 
     // Logos Match
-    /*vector<DMatch> matchesLOGOS;
-    SIFT_matchLOGOS(img1, img2, matchesLOGOS, true);
+    vector<DMatch> matchesLOGOS;
+    SIFT_matchLOGOS(img1, img2, kpts1, kpts2, desc1, desc2, matchesLOGOS, true);
 
-    // ----------- calibration -----------------  
+    // -------------- Ahmed: disparity map -------------------
+
+    // ----------- calibration -----------------
+    cout << "\n----------- Structure From Motion ----------" << endl;
     Mat cameraMatrix, distCoeffs;
     vector<vector<Point3f>> objectPoints;
     vector<vector<Point2f>> imagePoints;
 
-    addChessboardPoints(files, board_size, objectPoints, imagePoints);
+    addChessboardPoints(files, board_size, objectPoints, imagePoints, false);
     Mat img = cv::imread("../CalibrationImages/IMG_0.jpg");
     calibrateCamera(objectPoints, // the 3D points
                     imagePoints,  // the image points
@@ -58,22 +50,21 @@ int main(int argc, char* argv[])
                     distCoeffs,   // output distortion matrix
                     rvecs, tvecs // Rs, Ts 
                     );
-    cout << "Camera Matrix :\n" << cameraMatrix << endl;
-    waitKey(0);
+    cout << "\nCamera Matrix :\n" << cameraMatrix << endl;
 
     // --------- SfM Implementation --------------
     Mat imgL = imread("../SourceImages/PikaBun1.jpg");
     Mat imgR = imread("../SourceImages/PikaBun4.jpg");
     vector<Vec3d> points3D;
-    structureFromMotion(imgL, imgR, cameraMatrix, distCoeffs, points3D);
+    structureFromMotion(imgL, imgR, cameraMatrix, distCoeffs, points3D, true, GMS); // <-- change the algorithm here
 
-    // draw points on screen
+    // --------- Draw 3d point cloud --------------
     Viz3d window;
     window.showWidget("coordinate", viz::WCoordinateSystem());
     window.setBackgroundColor(cv::viz::Color::black());
     window.showWidget("points", viz::WCloud(points3D, viz::Color::green()));
     window.spin();
-    waitKey(0);*/
+    waitKey(0);
 
     return 0;
 }
@@ -90,8 +81,8 @@ void processParser(CommandLineParser parser){
     if (parser.has("algorithm"))
     {
         std::string _alg = parser.get<string>("algorithm");
-        if (_alg == "SGBM"){
-            alg = STEREO_SGBM;
+        if (_alg == "SIFT"){
+            alg = DEFAULT_SIFT;
         }
         // continue other algorithm
     }

@@ -5,12 +5,8 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/xfeatures2d.hpp>
-#include <opencv2/viz.hpp>
 #include <opencv2/calib3d.hpp>
 #include <iostream>
-
-//#include <Eigen/Core>
-//#include <Eigen/Dense>
 
 #include "FeatureMatchUtil.h"
 #include "CalibrationUtil.h"
@@ -29,9 +25,7 @@ const String parserKeys =
 "{algorithm      |      | LOGOS or GMS         }"
 ;
 
-enum { STEREO_SGBM = 1, LOGOS = 2, GMS = 3};
-
-const float SCALE = 2.0;
+enum { DEFAULT_SIFT = 1, GMS = 2, LOGOS = 3};
 
 vector<string> files = {"../CalibrationImages/IMG_0.jpg", 
                         "../CalibrationImages/IMG_1.jpg",

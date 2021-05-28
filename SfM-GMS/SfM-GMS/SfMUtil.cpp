@@ -1,33 +1,25 @@
 #include "SfMUtil.h"
 #include "FeatureMatchUtil.h"
 
-
-void structureFromMotion(Mat& img1, Mat& img2, Mat& cameraMatrix, Mat& distCoeffs, vector<Vec3d>& points3D)
+void structureFromMotion(Mat& img1, Mat& img2, Mat& cameraMatrix, Mat& distCoeffs, vector<Vec3d>& points3D, bool drawMatchResult, int algo_enum)
 {
     // key points
-    std::vector<cv::KeyPoint> kpts1, kpts2;
+    vector<KeyPoint> kpts1, kpts2;
     Mat desc1, desc2;
     vector<DMatch> matches;
 
     // detect key features using SIFT
-    cout << "Start SIFT detecting..." << endl;
-    SIFTDetectAndCompute(img1, kpts1, desc1);
-    SIFTDetectAndCompute(img2, kpts2, desc2);
-    cout << "Done SIFT detecting" << endl;
+    if (algo_enum == 1){
+        SIFT_matchBF(img1, img2, kpts1, kpts2, desc1, desc2, matches, drawMatchResult);
+    }
 
-    // match descriptors
-    cout << "Start matching..." << endl;
-    bruteForceMatch(desc1, desc2, matches);
-    cout << "Done matching" << endl;
+    if (algo_enum == 2){
+        SIFT_matchGMS(img1, img2, kpts1, kpts2, desc1, desc2, matches, drawMatchResult);
+    }
 
-    // draw the result
-    Mat matchImg;
-    cout << "Drawing matching result..." << endl;
-    //drawMatches(img1, kpts1, img2, kpts2, matches, matchImg);
-    //namedWindow("result", WINDOW_NORMAL);
-    //resizeWindow("result", matchImg.cols / 8, matchImg.rows / 8);
-    //imshow("result", matchImg);
-    //waitKey(0);
+    if (algo_enum == 3) {
+        SIFT_matchLOGOS(img1, img2, kpts1, kpts2, desc1, desc2, matches, drawMatchResult);
+    }
 
     //uv coordinates
     std::vector<cv::Point2f> coords1, coords2;
@@ -45,22 +37,17 @@ void structureFromMotion(Mat& img1, Mat& img2, Mat& cameraMatrix, Mat& distCoeff
     // find essential matrix using RANSAC
     Mat inliers;
     Mat essential = findEssentialMat(coords1, coords2, cameraMatrix, cv::RANSAC, 0.7, 1.0, inliers);
-    cout<< "essentail:\n" << essential <<endl;
+    cout<< "\nEssentail:\n" << essential <<endl;
 
     // Recovers the relative camera rotation and the translation from an estimated essential matrix and the corresponding points in two images, 
     // using cheirality check. Returns the number of inliers that pass the check.
     Mat rotation, translation;
     recoverPose(essential, coords1, coords2, cameraMatrix, rotation, translation, inliers);
-    cout << "rotation:\n" << rotation << endl;
-    cout << "translation:\n" << translation << endl;
+    cout << "\nRotation:\n" << rotation << endl;
+    cout << "\nTranslation:\n" << translation << endl;
 
     // calculate projection matrix
     cout << "Calculating Projection Matrix..." << endl;
-    //Mat RT1(3, 4, CV_64F, 0.);
-    //cv::Mat diag(cv::Mat::eye(3, 3, CV_64F));
-    //diag.copyTo(RT1(cv::Rect(0, 0, 3, 3)));
-    //Mat projMatrix1 =  cameraMatrix * RT1;
-    //Mat projMatrix2 = computeProjMat(cameraMatrix, rotation, translation);
 
     //-------Project Matrix without intrinsic-----------
     cv::Mat projMatrix1(3, 4, CV_64F, 0.); 
@@ -72,11 +59,11 @@ void structureFromMotion(Mat& img1, Mat& img2, Mat& cameraMatrix, Mat& distCoeff
     translation.copyTo(projMatrix2.colRange(3, 4));
     //-----------------
     
-    cout << "ProjectionMatrix 1: \n" << projMatrix1 << endl;
-    cout << "ProjectionMatrix 2: \n" << projMatrix2 << endl; 
+    cout << "\nProjectionMatrix 1: \n" << projMatrix1 << endl;
+    cout << "\nProjectionMatrix 2: \n" << projMatrix2 << endl; 
 
     // take inliers 
-    cout << "Un distort inliers..." << endl;
+    cout << "\nUn distort inliers..." << endl;
     std::vector<cv::Vec2d> inlierPts1;
     std::vector<cv::Vec2d> inlierPts2;
     for (int i = 0; i < inliers.rows; i++) {
@@ -139,7 +126,7 @@ void triangulate_SVD(const cv::Mat& p1, const cv::Mat& p2, const std::vector<cv:
 }
 
 void triangulate_OpenCV(const cv::Mat& projMatrix1, const cv::Mat& projMatrix2, const std::vector<cv::Vec2d>& undistCoords1, const std::vector<cv::Vec2d>& undistCoords2, std::vector<cv::Vec3d>& pts3D) {
-    cout << "Triangulation..." << endl;
+    cout << "\nTriangulation..." << endl;
     cv::Mat triangCoords4D;
     cv::triangulatePoints(projMatrix1, projMatrix2, undistCoords1, undistCoords2, triangCoords4D);
 
@@ -153,5 +140,5 @@ void triangulate_OpenCV(const cv::Mat& projMatrix1, const cv::Mat& projMatrix2, 
         pts3D.push_back(p);
         cout << "point 3d" << i << ": " << p << endl;
     }
-    cout << " Number of points found: " << pts3D.size() << endl;
+    cout << "Number of points found: " << pts3D.size() << endl;
 }
