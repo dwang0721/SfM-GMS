@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
     Mat imgL = imread("../SourceImages/PikaBun1.jpg");
     Mat imgR = imread("../SourceImages/PikaBun4.jpg");
     vector<Vec3d> points3D;
-    structureFromMotion(imgL, imgR, cameraMatrix, distCoeffs, points3D, true, LOGOS); // <-- change the algorithm here
+    structureFromMotion(imgL, imgR, cameraMatrix, distCoeffs, points3D, true, GMS); // <-- change the algorithm here
 
     // --------- Draw 3d point cloud --------------
     Viz3d window;
@@ -90,4 +90,12 @@ void processParser(CommandLineParser parser){
 
 void printHelp(){
    printf("\nhelp message here!");
+}
+
+Mat img_rotate(Mat src, double angle) {
+    Mat dst;      //Mat object for output image file
+    Point2f pt(src.cols / 2., src.rows / 2.);          //point from where to rotate    
+    Mat r = getRotationMatrix2D(pt, angle, 1.0);      //Mat object for storing after rotation
+    warpAffine(src, dst, r, Size(src.cols, src.rows));  ///applie an affine transforation to image.
+    return dst;         //returning Mat object for output image file
 }

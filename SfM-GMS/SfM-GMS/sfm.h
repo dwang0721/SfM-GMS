@@ -51,3 +51,4 @@ Mat descriptors1, descriptors2;
 void processParser(CommandLineParser parser);
 void printHelp();
 void blurDistant(Mat& img1, Mat& img2, Mat& disparity);
+Mat img_rotate(Mat src, double angle);

@@ -50,19 +50,25 @@ inline void match(Mat& desc1, Mat& desc2, vector<DMatch>& matches, double kDista
 }
 
 void SIFT_matchGMS(Mat& img1, Mat& img2, vector<KeyPoint>& kpts1, vector<KeyPoint>& kpts2, Mat& desc1, Mat& desc2, vector<DMatch>& matchesGMS, bool draw_result){
+    clock_t time_req;
+
     cout << "\n<GMS>" << endl;
     cout << "Start SIFT detecting..." << endl;
+    time_req = clock();
     SIFTDetectAndCompute(img1, kpts1, desc1);
     SIFTDetectAndCompute(img2, kpts2, desc2);
-    cout << "Done SIFT detecting..." << endl;
+    time_req = clock() - time_req;
+    cout << "Done SIFT detecting..." << (float)time_req/CLOCKS_PER_SEC << " seconds elapsed." << endl;
 
     // GMS
     cout << "Start GMS matching..." << endl;
+    time_req = clock();
     Ptr<BFMatcher> matcherBF = BFMatcher::create();
     vector<DMatch> matches;
     matcherBF->match(desc1, desc2, matches);    
     cv::xfeatures2d::matchGMS(img1.size(), img2.size(), kpts1, kpts2, matches, matchesGMS);
-    cout << "Done GMS matching..." << endl;
+    time_req = clock() - time_req;
+    cout << "Done GMS matching..." << (float)time_req/CLOCKS_PER_SEC << " seconds elapsed." << endl;
 
     if (draw_result){
         cout << "Start drawing GMS match result... Press any key to continue" << endl;
@@ -77,13 +83,19 @@ void SIFT_matchGMS(Mat& img1, Mat& img2, vector<KeyPoint>& kpts1, vector<KeyPoin
 }
 
 void SIFT_matchLOGOS(Mat& img1, Mat& img2, vector<KeyPoint>& kpts1, vector<KeyPoint>& kpts2, Mat& desc1, Mat& desc2, vector<DMatch>& matchesLOGOS, bool draw_result){
-    cout << "\n<GMS>" << endl;
+    clock_t time_req;
+
+    cout << "\n<LOGOS>" << endl;    
+
     cout << "Start SIFT detecting..." << endl;
+    time_req = clock();
     SIFTDetectAndCompute(img1, kpts1, desc1);
     SIFTDetectAndCompute(img2, kpts2, desc2);
-    cout << "Done SIFT detecting..." << endl;
+    time_req = clock() - time_req;
+    cout << "Done SIFT detecting..." << (float)time_req/CLOCKS_PER_SEC << " seconds elapsed." << endl;
 
     cout << "Start LOGOS matching..." << endl;
+    time_req = clock();
     Ptr<FlannBasedMatcher> matcher2 = FlannBasedMatcher::create();
     BOWKMeansTrainer bow(50);
     Mat dict = bow.cluster(desc1);
@@ -101,7 +113,8 @@ void SIFT_matchLOGOS(Mat& img1, Mat& img2, vector<KeyPoint>& kpts1, vector<KeyPo
     }
 
     xfeatures2d::matchLOGOS(kpts1, kpts2, nn1, nn2, matchesLOGOS);
-    cout << "Done LOGOS matching..." << endl;
+    time_req = clock() - time_req;
+    cout << "Done LOGOS matching..." << (float)time_req/CLOCKS_PER_SEC << " seconds elapsed." << endl;
 
     if (draw_result){
         cout << "Start drawing LOGOS match result... Press any key to continue" << endl;
@@ -117,16 +130,22 @@ void SIFT_matchLOGOS(Mat& img1, Mat& img2, vector<KeyPoint>& kpts1, vector<KeyPo
 }
 
 void SIFT_matchBF(Mat& img1, Mat& img2, vector<KeyPoint>& kpts1, vector<KeyPoint>& kpts2, Mat& desc1, Mat& desc2, vector<DMatch>& matchesBF, bool draw_result) {
+    clock_t time_req;
+
     cout << "\n<DEFAULT SIFT>" << endl;
     cout << "Start SIFT detecting..." << endl;
+    time_req = clock();
     SIFTDetectAndCompute(img1, kpts1, desc1);
     SIFTDetectAndCompute(img2, kpts2, desc2);
-    cout << "Done SIFT detecting" << endl;
+    time_req = clock() - time_req;
+    cout << "Done SIFT detecting" << (float)time_req/CLOCKS_PER_SEC << " seconds elapsed." << endl;
 
     // match descriptors
     cout << "Start SIFT BF matching..." << endl;
+    time_req = clock();
     bruteForceMatch(desc1, desc2, matchesBF);
-    cout << "Done  SIFT BF matching" << endl;
+    time_req = clock() - time_req;
+    cout << "Done  SIFT BF matching" << (float)time_req/CLOCKS_PER_SEC << " seconds elapsed." << endl;
 
     // draw the result
     if (draw_result) {
