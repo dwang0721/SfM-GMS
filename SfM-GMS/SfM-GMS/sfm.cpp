@@ -21,11 +21,17 @@ int main(int argc, char* argv[])
     Mat img2 = imread("../SourceImages/Disparity_R.jpg");
 
     // GMS match
-    vector<DMatch> matchesGMS;
+    vector<DMatch> matchesGMS,matches;
+    SIFT_match(img1, img2, matches, true);
     SIFT_matchGMA(img1, img2, matchesGMS, true);
+    Mat rot_img2 = img_rotate(img2,180.0);
+    vector<DMatch> matchesGMS2,matches2;
+    SIFT_match(img1, rot_img2, matches2, true);
+    SIFT_matchGMA(img1, rot_img2, matchesGMS2, true);
+
 
     // Logos Match
-    vector<DMatch> matchesLOGOS;
+    /*vector<DMatch> matchesLOGOS;
     SIFT_matchLOGOS(img1, img2, matchesLOGOS, true);
 
     // ----------- calibration -----------------  
@@ -57,7 +63,7 @@ int main(int argc, char* argv[])
     window.setBackgroundColor(cv::viz::Color::black());
     window.showWidget("points", viz::WCloud(points3D, viz::Color::green()));
     window.spin();
-    waitKey(0);
+    waitKey(0);*/
 
     return 0;
 }
@@ -83,5 +89,13 @@ void processParser(CommandLineParser parser){
 
 void printHelp(){
    printf("\nhelp message here!");
+}
+
+Mat img_rotate(Mat src, double angle) {
+    Mat dst;      //Mat object for output image file
+    Point2f pt(src.cols / 2., src.rows / 2.);          //point from where to rotate    
+    Mat r = getRotationMatrix2D(pt, angle, 1.0);      //Mat object for storing after rotation
+    warpAffine(src, dst, r, Size(src.cols, src.rows));  ///applie an affine transforation to image.
+    return dst;         //returning Mat object for output image file
 }
 

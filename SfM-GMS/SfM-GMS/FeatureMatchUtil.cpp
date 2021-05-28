@@ -107,3 +107,27 @@ void SIFT_matchLOGOS(Mat& img1, Mat& img2, vector<DMatch>& matchesLOGOS, bool dr
         waitKey(0);
     }
 }
+
+void SIFT_match(Mat& img1, Mat& img2, vector<DMatch>& matches, bool draw_result) {
+    Ptr<SIFT> detector = SIFT::create();
+    vector<KeyPoint> keypoints1, keypoints2;
+    Mat descriptor1, descriptor2;
+    // Obtain keypoints and descriptors
+    detector->detectAndCompute(img1, noArray(), keypoints1, descriptor1);
+    detector->detectAndCompute(img2, noArray(), keypoints2, descriptor2);
+    Ptr<BFMatcher> matcher = BFMatcher::create();
+    // Match two images' descriptors
+    matcher->match(descriptor1, descriptor2, matches);
+    Mat image_show;
+    // Draw the result
+    if (draw_result) {
+        drawMatches(img1, keypoints1, img2, keypoints2, matches, image_show);
+        namedWindow("Match Image", WINDOW_NORMAL);
+        float SCALE = 1.0;
+        // Scale down the window size
+        resizeWindow("Match Image", image_show.cols / SCALE, image_show.rows / SCALE);
+        imshow("Match Image", image_show);
+        waitKey(0);
+    }
+    
+}

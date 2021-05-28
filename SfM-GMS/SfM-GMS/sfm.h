@@ -5,7 +5,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/xfeatures2d.hpp>
-//#include <opencv2/viz.hpp>
+#include <opencv2/viz.hpp>
 #include <opencv2/calib3d.hpp>
 #include <iostream>
 
@@ -57,3 +57,4 @@ Mat descriptors1, descriptors2;
 void processParser(CommandLineParser parser);
 void printHelp();
 void blurDistant(Mat& img1, Mat& img2, Mat& disparity);
+Mat img_rotate(Mat src, double angle);
