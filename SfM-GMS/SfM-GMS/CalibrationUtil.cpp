@@ -1,6 +1,6 @@
 #include "CalibrationUtil.h"
 
-int addChessboardPoints(const vector<string>& imgList, Size& boardSize, vector<vector<Point3f>>&  objPtr, vector<vector<Point2f>>& imgPtr){
+int addChessboardPoints(const vector<string>& imgList, Size& boardSize, vector<vector<Point3f>>&  objPtr, vector<vector<Point2f>>& imgPtr, bool drawCorner){
     
     // points on the chessboard
     vector<Point2f> imageCorners;
@@ -8,6 +8,7 @@ int addChessboardPoints(const vector<string>& imgList, Size& boardSize, vector<v
     Mat image;
     int successes = 0;
 
+    cout << "\nStart Camera Calibration" << endl;
     // initialize the chessboard corners
     for (int i = 0; i < boardSize.height; i++) {
         for (int j = 0; j < boardSize.width; j++) {

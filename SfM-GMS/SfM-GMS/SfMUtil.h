@@ -19,7 +19,7 @@ using namespace viz;
 // ----------------------------------
 // ---- Function Declaration --------
 // ----------------------------------
-void structureFromMotion(Mat& img1, Mat& img2, Mat& cameraMatrix, Mat& distCoeffs, vector<Vec3d>& points3D);
+void structureFromMotion(Mat& img1, Mat& img2, Mat& cameraMatrix, Mat& distCoeffs, vector<Vec3d>& points3D, bool drawMatchResult, int algo_enum);
 Mat computeProjMat(Mat cameraMatrix, Mat rotationMatrix, Mat transMatrix);
 Vec3d solveTriangulation(const cv::Mat& p1, const cv::Mat& p2, const cv::Vec2d& u1, const cv::Vec2d& u2);
 void triangulate_SVD(const cv::Mat& p1, const cv::Mat& p2, const std::vector<cv::Vec2d>& pts1, const std::vector<cv::Vec2d>& pts2, std::vector<cv::Vec3d>& pts3D);

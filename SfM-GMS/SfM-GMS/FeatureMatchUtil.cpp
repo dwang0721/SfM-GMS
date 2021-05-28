@@ -49,21 +49,25 @@ inline void match(Mat& desc1, Mat& desc2, vector<DMatch>& matches, double kDista
     }
 }
 
-void SIFT_matchGMA(Mat& img1, Mat& img2, vector<DMatch>& matchesGMS, bool draw_result){
-    Mat descriptor1, descriptor2;
-    vector<KeyPoint> keypoints1, keypoints2;
-    SIFTDetectAndCompute(img1, keypoints1, descriptor1);
-    SIFTDetectAndCompute(img2, keypoints2, descriptor2);
+void SIFT_matchGMS(Mat& img1, Mat& img2, vector<KeyPoint>& kpts1, vector<KeyPoint>& kpts2, Mat& desc1, Mat& desc2, vector<DMatch>& matchesGMS, bool draw_result){
+    cout << "\n<GMS>" << endl;
+    cout << "Start SIFT detecting..." << endl;
+    SIFTDetectAndCompute(img1, kpts1, desc1);
+    SIFTDetectAndCompute(img2, kpts2, desc2);
+    cout << "Done SIFT detecting..." << endl;
 
+    // GMS
+    cout << "Start GMS matching..." << endl;
     Ptr<BFMatcher> matcherBF = BFMatcher::create();
     vector<DMatch> matches;
-    matcherBF->match(descriptor1, descriptor2, matches);
-    // GMS
-    cv::xfeatures2d::matchGMS(img1.size(), img2.size(), keypoints1, keypoints2, matches, matchesGMS);
+    matcherBF->match(desc1, desc2, matches);    
+    cv::xfeatures2d::matchGMS(img1.size(), img2.size(), kpts1, kpts2, matches, matchesGMS);
+    cout << "Done GMS matching..." << endl;
 
     if (draw_result){
+        cout << "Start drawing GMS match result... Press any key to continue" << endl;
         Mat image_show1;
-        drawMatches(img1, keypoints1, img2, keypoints2, matchesGMS, image_show1);
+        drawMatches(img1, kpts1, img2, kpts2, matchesGMS, image_show1);
         namedWindow("GMS", WINDOW_NORMAL);
         // Scale down the window size
         resizeWindow("GMS", image_show1.cols / 2, image_show1.rows / 2);
@@ -72,20 +76,22 @@ void SIFT_matchGMA(Mat& img1, Mat& img2, vector<DMatch>& matchesGMS, bool draw_r
     }
 }
 
-void SIFT_matchLOGOS(Mat& img1, Mat& img2, vector<DMatch>& matchesLOGOS, bool draw_result){
-    Mat descriptor1, descriptor2;
-    vector<KeyPoint> keypoints1, keypoints2;
-    SIFTDetectAndCompute(img1, keypoints1, descriptor1);
-    SIFTDetectAndCompute(img2, keypoints2, descriptor2);
+void SIFT_matchLOGOS(Mat& img1, Mat& img2, vector<KeyPoint>& kpts1, vector<KeyPoint>& kpts2, Mat& desc1, Mat& desc2, vector<DMatch>& matchesLOGOS, bool draw_result){
+    cout << "\n<GMS>" << endl;
+    cout << "Start SIFT detecting..." << endl;
+    SIFTDetectAndCompute(img1, kpts1, desc1);
+    SIFTDetectAndCompute(img2, kpts2, desc2);
+    cout << "Done SIFT detecting..." << endl;
 
+    cout << "Start LOGOS matching..." << endl;
     Ptr<FlannBasedMatcher> matcher2 = FlannBasedMatcher::create();
     BOWKMeansTrainer bow(50);
-    Mat dict = bow.cluster(descriptor1);
+    Mat dict = bow.cluster(desc1);
     vector<int> nn1, nn2;
     vector<DMatch> m1, m2;
     matcher2->add(dict);
-    matcher2->match(descriptor1, m1);
-    matcher2->match(descriptor2, m2);
+    matcher2->match(desc1, m1);
+    matcher2->match(desc2, m2);
 
     for (auto m : m1) {
         nn1.push_back(m.trainIdx);
@@ -94,11 +100,13 @@ void SIFT_matchLOGOS(Mat& img1, Mat& img2, vector<DMatch>& matchesLOGOS, bool dr
         nn2.push_back(m.trainIdx);
     }
 
-    xfeatures2d::matchLOGOS(keypoints1, keypoints2, nn1, nn2, matchesLOGOS);
+    xfeatures2d::matchLOGOS(kpts1, kpts2, nn1, nn2, matchesLOGOS);
+    cout << "Done LOGOS matching..." << endl;
 
     if (draw_result){
+        cout << "Start drawing LOGOS match result... Press any key to continue" << endl;
         Mat image_show2;
-        drawMatches(img1, keypoints1, img2, keypoints2, matchesLOGOS, image_show2, Scalar::all(-1),
+        drawMatches(img1, kpts1, img2, kpts2, matchesLOGOS, image_show2, Scalar::all(-1),
             Scalar::all(-1), vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 
         namedWindow("LOGOS", WINDOW_NORMAL);
@@ -106,4 +114,29 @@ void SIFT_matchLOGOS(Mat& img1, Mat& img2, vector<DMatch>& matchesLOGOS, bool dr
         imshow("LOGOS", image_show2);
         waitKey(0);
     }
+}
+
+void SIFT_matchBF(Mat& img1, Mat& img2, vector<KeyPoint>& kpts1, vector<KeyPoint>& kpts2, Mat& desc1, Mat& desc2, vector<DMatch>& matchesBF, bool draw_result) {
+    cout << "\n<DEFAULT SIFT>" << endl;
+    cout << "Start SIFT detecting..." << endl;
+    SIFTDetectAndCompute(img1, kpts1, desc1);
+    SIFTDetectAndCompute(img2, kpts2, desc2);
+    cout << "Done SIFT detecting" << endl;
+
+    // match descriptors
+    cout << "Start SIFT BF matching..." << endl;
+    bruteForceMatch(desc1, desc2, matchesBF);
+    cout << "Done  SIFT BF matching" << endl;
+
+    // draw the result
+    if (draw_result) {
+        cout << "Drawing matching result...Press any key to continue" << endl;
+        Mat matchImg;
+        drawMatches(img1, kpts1, img2, kpts2, matchesBF, matchImg);
+        namedWindow("result", WINDOW_NORMAL);
+        resizeWindow("result", matchImg.cols / 2, matchImg.rows / 2);
+        imshow("result", matchImg);
+        waitKey(0);
+    }
+
 }

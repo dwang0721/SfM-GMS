@@ -17,4 +17,4 @@ using namespace std;
 // ----------------------------------
 // ---- Function Declaration --------
 // ----------------------------------
-int addChessboardPoints(const vector<string>& imgList, Size& boardSize, vector<vector<Point3f>>&  objPtr, vector<vector<Point2f>>& imgPtr);
+int addChessboardPoints(const vector<string>& imgList, Size& boardSize, vector<vector<Point3f>>&  objPtr, vector<vector<Point2f>>& imgPtr, bool drawCorner);
