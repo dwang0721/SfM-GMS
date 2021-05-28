@@ -22,13 +22,22 @@ int main(int argc, char* argv[])
 
     // GMS match
     vector<DMatch> matchesGMS,matches;
+    // SIFT with normal images
     SIFT_match(img1, img2, matches, true);
+    // GMS with normal images
     SIFT_matchGMA(img1, img2, matchesGMS, true, false, false);
     Mat rot_img2 = img_rotate(img2,180.0);
+    Mat scale_img2;
+    resize(img2, scale_img2, Size(500, 500));
     vector<DMatch> matchesLOGOS2,matchesGMS2,matches2;
+    // Matching with image2 rotate 180 degrees
     SIFT_match(img1, rot_img2, matches2, true);
     SIFT_matchGMA(img1, rot_img2, matchesGMS2, true, true, true);
     SIFT_matchLOGOS(img1, rot_img2, matchesLOGOS2, true);
+    vector<DMatch> matchesLOGOS3, matchesGMS3, matches3;
+    SIFT_match(img1, scale_img2, matches3, true);
+    SIFT_matchGMA(img1, scale_img2, matchesGMS3, true, true, true);
+
 
 
     // Logos Match
@@ -99,4 +108,3 @@ Mat img_rotate(Mat src, double angle) {
     warpAffine(src, dst, r, Size(src.cols, src.rows));  ///applie an affine transforation to image.
     return dst;         //returning Mat object for output image file
 }
-
