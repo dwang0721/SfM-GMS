@@ -20,14 +20,31 @@ int main(int argc, char* argv[])
     Mat img2 = imread("../SourceImages/Disparity_R.jpg");
     vector<KeyPoint> kpts1, kpts2;
     Mat desc1, desc2;
-    vector<DMatch> matches;
 
     // ------------- Feature Match: Logos and GMS ------------------ 
     cout << "-------- Feature Match: GMS vs LOGOS ---------" << endl; 
-
+    cout << img2.cols << endl;
+    cout << img2.rows << endl;
     // GMS match
-    vector<DMatch> matchesGMS;
+    cout << "-------- Normal Camera Change ---------" << endl;
+    vector<DMatch> matches, matchesGMS;
+    SIFT_matchBF(img1, img2, kpts1, kpts2, desc1, desc2, matches, true);
     SIFT_matchGMS(img1, img2,  kpts1, kpts2, desc1, desc2, matchesGMS, true);
+
+    // match with rotation
+    cout << "-------- With Rotation ---------" << endl;
+    Mat rot_img2 = img_rotate(img2, 180);
+    vector<DMatch> matches2, matchesGMS2;
+    SIFT_matchBF(img1, rot_img2, kpts1, kpts2, desc1, desc2, matches, true);
+    SIFT_matchGMS(img1, rot_img2, kpts1, kpts2, desc1, desc2, matchesGMS, true);
+
+    // match with scale
+    cout << "-------- Change Scale ---------" << endl;
+    Mat scale_img2;
+    resize(img2,scale_img2, Size(1000,1000));
+    vector<DMatch> matches3, matchesGMS3;
+    SIFT_matchBF(img1, scale_img2, kpts1, kpts2, desc1, desc2, matches3, true);
+    SIFT_matchGMS(img1, scale_img2, kpts1, kpts2, desc1, desc2, matchesGMS3, true);
 
     // Logos Match
     vector<DMatch> matchesLOGOS;
