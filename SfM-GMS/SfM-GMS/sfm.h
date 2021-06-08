@@ -7,10 +7,18 @@
 #include <opencv2/xfeatures2d.hpp>
 //#include <opencv2/viz.hpp>
 #include <opencv2/calib3d.hpp>
+#include <opencv2/core/types_c.h>
+#include <iostream>
+#include <conio.h>
+#include <opencv2/photo/cuda.hpp>
+
 #include <iostream>
 
-#include <Eigen/Core>
-#include <Eigen/Dense>
+#include <opencv2/opencv.hpp>
+
+#include <opencv2/highgui/highgui.hpp>
+
+#include <opencv2/imgproc/imgproc.hpp>
 
 using namespace cv;
 using namespace std;
