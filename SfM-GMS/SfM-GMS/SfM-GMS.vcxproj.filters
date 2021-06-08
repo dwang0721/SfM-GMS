@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="sfm.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FeatureMatchUtil.cpp">
@@ -27,18 +27,24 @@
     <ClCompile Include="CalibrationUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DisparityUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SfMUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sfm.h">
+    <ClInclude Include="main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FeatureMatchUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CalibrationUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DisparityUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

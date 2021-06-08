@@ -1,4 +1,4 @@
-#include "sfm.h"
+#include "main.h"
 int alg = DEFAULT_SIFT;
 
 // Tasks:
@@ -33,8 +33,6 @@ int main(int argc, char* argv[])
     vector<DMatch> matchesLOGOS;
     SIFT_matchLOGOS(img1, img2, kpts1, kpts2, desc1, desc2, matchesLOGOS, true);
 
-    // -------------- Ahmed: disparity map -------------------
-
     // ----------- calibration -----------------
     cout << "\n----------- Structure From Motion ----------" << endl;
     Mat cameraMatrix, distCoeffs;
@@ -56,16 +54,20 @@ int main(int argc, char* argv[])
     Mat imgL = imread("../SourceImages/PikaBun1.jpg");
     Mat imgR = imread("../SourceImages/PikaBun4.jpg");
     vector<Vec3d> points3D;
-    structureFromMotion(imgL, imgR, cameraMatrix, distCoeffs, points3D, true, GMS); // <-- change the algorithm here
+    structureFromMotion(imgL, imgR, cameraMatrix, distCoeffs, points3D, true, LOGOS);
+    //structureFromMotion(imgL, imgR, cameraMatrix, distCoeffs, points3D, true, GMS);
+    //structureFromMotion(imgL, imgR, cameraMatrix, distCoeffs, points3D, true, DEFAULT_SIFT); // <-- change the algorithm here
 
     // --------- Draw 3d point cloud --------------
     Viz3d window;
     window.showWidget("coordinate", viz::WCoordinateSystem());
     window.setBackgroundColor(cv::viz::Color::black());
-    window.showWidget("points", viz::WCloud(points3D, viz::Color::green()));
+    window.showWidget("points", viz::WCloud(points3D, viz::Color::white()));
     window.spin();
     waitKey(0);
 
+    // -------------- Ahmed: disparity map -------------------
+    runDisparityMap();
     return 0;
 }
 

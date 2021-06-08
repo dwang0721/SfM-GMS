@@ -11,6 +11,7 @@
 #include "FeatureMatchUtil.h"
 #include "CalibrationUtil.h"
 #include "SfMUtil.h"
+#include "DisparityUtil.h"
 
 using namespace cv;
 using namespace std;
