@@ -66,7 +66,7 @@ void SIFT_matchGMS(Mat& img1, Mat& img2, vector<KeyPoint>& kpts1, vector<KeyPoin
     Ptr<BFMatcher> matcherBF = BFMatcher::create();
     vector<DMatch> matches;
     matcherBF->match(desc1, desc2, matches);    
-    cv::xfeatures2d::matchGMS(img1.size(), img2.size(), kpts1, kpts2, matches, matchesGMS);
+    cv::xfeatures2d::matchGMS(img1.size(), img2.size(), kpts1, kpts2, matches, matchesGMS,true,true);
     time_req = clock() - time_req;
     cout << "Done GMS matching..." << (float)time_req/CLOCKS_PER_SEC << " seconds elapsed." << endl;
 
@@ -79,6 +79,7 @@ void SIFT_matchGMS(Mat& img1, Mat& img2, vector<KeyPoint>& kpts1, vector<KeyPoin
         resizeWindow("GMS", image_show1.cols / 2, image_show1.rows / 2);
         imshow("GMS", image_show1);
         waitKey(0);
+        //imwrite("gms_result.png", image_show1);
     }
 }
 
@@ -156,6 +157,7 @@ void SIFT_matchBF(Mat& img1, Mat& img2, vector<KeyPoint>& kpts1, vector<KeyPoint
         resizeWindow("result", matchImg.cols / 2, matchImg.rows / 2);
         imshow("result", matchImg);
         waitKey(0);
+        //imwrite("SIFT_result.png", matchImg);
     }
 
 }
