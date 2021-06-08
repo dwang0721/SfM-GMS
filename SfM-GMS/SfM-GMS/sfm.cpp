@@ -416,7 +416,7 @@ int main(int argc, char* argv[])
 	cout << "Press any key to continue" << endl;
 	waitKey();
 
-	/*cout << "########################### Dense Disparity ###################################" << endl;
+	cout << "########################### Dense Disparity ###################################" << endl;
 	imshow("Original Left Image ", img1);
 	imshow("Original Right Image ", img2);
 	imshow("Original Ground Truth Image ", gt);
@@ -428,7 +428,7 @@ int main(int argc, char* argv[])
 	matchBasedDispCalculate(img1, img2, gt, "GMS", disp_ratio, disparity_type);
 	cout << "Press any key to continue" << endl;
 	waitKey();
-	*/
+	
 	cout << "########################### Panorama Mode ###################################" << endl;
 	Mat img3 = imread("../SourceImages/leftRobot.png");
 	Mat img4 = imread("../SourceImages/rightRobot.png");
