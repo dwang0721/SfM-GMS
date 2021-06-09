@@ -220,179 +220,154 @@ bool compareContourAreas(std::vector<cv::Point> contour1, std::vector<cv::Point>
 void createPortraitMode(Mat img_1, Mat img_2)
 {
     unsigned long start_time = 0, finish_time = 0; //check processing time  
-    start_time = getTickCount(); //check processing time
-    Ptr<Feature2D> f2d;
-    Ptr<DescriptorMatcher> matcher;
-    std::vector<KeyPoint> keypoints_1, keypoints_2;
-    Mat descriptors_1, descriptors_2;
+	start_time = getTickCount(); //check processing time
+	Ptr<Feature2D> f2d;
+	Ptr<DescriptorMatcher> matcher;
+	std::vector<KeyPoint> keypoints_1, keypoints_2;
+	Mat descriptors_1, descriptors_2;
 
-    f2d = SIFT::create();
-    matcher = new FlannBasedMatcher(new flann::KDTreeIndexParams(4));
+	f2d = SIFT::create();
+	matcher = new FlannBasedMatcher(new flann::KDTreeIndexParams(4));
 
-    for (int i = 0; i < img_1.cols; i++)
-        for (int j = 0; j < img_1.rows; j++) //Dense disparity
-        {
-            keypoints_1.push_back(KeyPoint(i, j, 1));
-            keypoints_2.push_back(KeyPoint(i, j, 1));
-        }
-    f2d->compute(img_1, keypoints_1, descriptors_1); // To get descriptors at each and every pixel(dense disparity)
-    f2d->compute(img_2, keypoints_2, descriptors_2); // To get descriptors at each and every pixel(dense disparity)
+	for (int i = 0; i < img_1.cols; i++)
+		for (int j = 0; j < img_1.rows; j++) //Dense disparity
+		{
+			keypoints_1.push_back(KeyPoint(i, j, 1));
+			keypoints_2.push_back(KeyPoint(i, j, 1));
+		}
+	f2d->compute(img_1, keypoints_1, descriptors_1); // To get descriptors at each and every pixel(dense disparity)
+	f2d->compute(img_2, keypoints_2, descriptors_2); // To get descriptors at each and every pixel(dense disparity)
 
-    vector< DMatch > matches;
-    matcher->match(descriptors_1, descriptors_2, matches);
+	vector< DMatch > matches;
+	matcher->match(descriptors_1, descriptors_2, matches);
 
-    vector<DMatch> matchesGMS;
-    cv::xfeatures2d::matchGMS(img_1.size(), img_2.size(), keypoints_1, keypoints_2, matches, matches/*GMS*/);
+	vector<DMatch> matchesGMS;
+	cv::xfeatures2d::matchGMS(img_1.size(), img_2.size(), keypoints_1, keypoints_2, matches, matchesGMS);
+	matches = matchesGMS;
+	//Calculating dispairity and disparity map:
+	Mat disparity(img_1.size().height, img_1.size().width, CV_8U, Scalar(255));
+	for (int i = 0; i < (int)matches.size(); i++)
+	{
+		int x = keypoints_1[matches[i].queryIdx].pt.x; // good matches index of img1 descriptor, after the index substitute into the keypoints of img1 then get the x-coordinates of the keypoint
+		int y = keypoints_1[matches[i].queryIdx].pt.y; // good matches index of img1 descriptor, after the index substitute into the keypoints of img1 then get the y-coordinates of the keypoint
+		int x1 = keypoints_2[matches[i].trainIdx].pt.x; // good matches index of img2 descriptor, after the index substitute into the keypoints of img1 then get the x - coordinates of the keypoint
+		disparity.at<uchar>(y, x) = abs(x - x1);
+	}
+	namedWindow("Disparity Map - All matches_GMS", WINDOW_NORMAL);
+	cv::resizeWindow("Disparity Map - All matches_GMS", disparity.cols / 3, disparity.rows / 3);
+	imshow("Disparity Map - All matches_GMS", disparity);
+	waitKey();
+	imwrite("Disparity Map - All matches_GMS.png", disparity);
+	destroyAllWindows();
 
-    //Calculating dispairity and disparity map:
-    Mat disparity(img_1.size().height, img_1.size().width, CV_8U, Scalar(255));
-    for (int i = 0; i < (int)matches.size(); i++)
-    {
-        int x = keypoints_1[matches[i].queryIdx].pt.x; // good matches index of img1 descriptor, after the index substitute into the keypoints of img1 then get the x-coordinates of the keypoint
-        int y = keypoints_1[matches[i].queryIdx].pt.y; // good matches index of img1 descriptor, after the index substitute into the keypoints of img1 then get the y-coordinates of the keypoint
-        int x1 = keypoints_2[matches[i].trainIdx].pt.x; // good matches index of img2 descriptor, after the index substitute into the keypoints of img1 then get the x - coordinates of the keypoint
-        disparity.at<uchar>(y, x) = abs(x - x1);
-    }
-    namedWindow("Disparity Map - All matches_GMS", WINDOW_NORMAL);
-    cv::resizeWindow("Disparity Map - All matches_GMS", disparity.cols / 3, disparity.rows / 3);
-    imshow("Disparity Map - All matches_GMS", disparity);
-    waitKey();
-    imwrite("Disparity Map - All matches_GMS.png", disparity);
-    destroyAllWindows();
+	for (int i = 0; i < disparity.cols; i++) {
+		for (int j = 0; j < disparity.rows; j++) {
+			if (disparity.at<uchar>(j, i) == 255) {
+				disparity.at<uchar>(j, i) = 0;
+			}
+		}
+	}
+	namedWindow("Disparity Map - All matches_GMS_After_for_loop", WINDOW_NORMAL);
+	cv::resizeWindow("Disparity Map - All matches_GMS_After_for_loop", disparity.cols / 3, disparity.rows / 3);
+	imshow("Disparity Map - All matches_GMS_After_for_loop", disparity);
+	waitKey();
+	imwrite("Disparity Map - All matches_GMS_After_for_loop.png", disparity);
+	destroyAllWindows();
+	
+	Mat kernel;
+	Point anchor;
+	double delta = 0;
+	int ddepth = -1;	
+	int kernel_size;
+	kernel_size = 9;
+	Mat thresh;
+	Mat img_bw;
+	kernel = Mat::ones(kernel_size, kernel_size, CV_32F) / (float)(kernel_size * kernel_size);
+	Mat blurred;
+	int threshhold = 60;
+	threshold(disparity, thresh, threshhold, 255, THRESH_BINARY); //white
+	
+	namedWindow("Right after thresholding", WINDOW_NORMAL);
+	cv::resizeWindow("Right after thresholding", thresh.cols / 3, thresh.rows / 3);
+	imshow("Right after thresholding", thresh);
+	waitKey();
+	imwrite("Right after thresholding.png", thresh);
+	
+	Mat img_final;
+	dilate(thresh, img_final, Mat(), Point(-1, -1), 2, 1, 1);
+	
+	namedWindow("Dialation", WINDOW_NORMAL);
+	cv::resizeWindow("Dialation", img_final.cols / 3, img_final.rows / 3);
+	imshow("Dialation", img_final);
+	waitKey();
+	imwrite("Dialation.png", img_final);
 
-    for (int i = 0; i < disparity.cols; i++) {
-        for (int j = 0; j < disparity.rows; j++) {
-            if (disparity.at<uchar>(j, i) == 255) {
-                disparity.at<uchar>(j, i) = 0;
-            }
-        }
-    }
-    namedWindow("Disparity Map - All matches_GMS_After_for_loop", WINDOW_NORMAL);
-    cv::resizeWindow("Disparity Map - All matches_GMS_After_for_loop", disparity.cols / 3, disparity.rows / 3);
-    imshow("Disparity Map - All matches_GMS_After_for_loop", disparity);
-    waitKey();
-    imwrite("Disparity Map - All matches_GMS_After_for_loop.png", disparity);
-    destroyAllWindows();
+	// detect the contours on the binary image using cv2.CHAIN_APPROX_NONE
+	vector<vector<Point>> contours;
+	vector<Vec4i> hierarchy;
+	findContours(img_final, contours, hierarchy, RETR_LIST, CHAIN_APPROX_NONE);
+	// draw contours on the original image
+	drawContours(img_final, contours, -1, Scalar(0, 255, 0), 2);
+	
+	namedWindow("contours", WINDOW_NORMAL);
+	cv::resizeWindow("contours", img_final.cols / 3, img_final.rows / 3);
+	imshow("contours",img_final);
+	waitKey(0);
+	destroyAllWindows();
+	imwrite("contours.png",img_final);
+	
+	int largest_contour_index = 0;
+	int largest_area = 0;
+	Rect bounding_rect;
 
-    Mat colored;
-    long float count = 0, max_disp = 0, min_disp = INFINITY;
-    cvtColor(disparity, colored, 0, 3);
-    for (int i = 0; i < disparity.cols; i++) {
-        for (int j = 0; j < disparity.rows; j++) {
-            if (disparity.at<uchar>(j, i) == 255) {
-                colored.at<cv::Vec3b>(j, i)[0] = 255;
-                colored.at<cv::Vec3b>(j, i)[1] = 255;
-                colored.at<cv::Vec3b>(j, i)[2] = 255;
-            }
-            if (disparity.at<uchar>(j, i) >= 0 && disparity.at<uchar>(j, i) < 128) { //blue
-                colored.at<cv::Vec3b>(j, i)[0] = 0;
-                colored.at<cv::Vec3b>(j, i)[1] = 0;
-                colored.at<cv::Vec3b>(j, i)[2] = 255;
-            }
-            if (disparity.at<uchar>(j, i) >= 128 && disparity.at<uchar>(j, i) < 255) { //red
-                colored.at<cv::Vec3b>(j, i)[0] = 255;
-                colored.at<cv::Vec3b>(j, i)[1] = 255;
-                colored.at<cv::Vec3b>(j, i)[2] = 0;
-            }
-        }
-    }
+	std::sort(contours.begin(), contours.end(), compareContourAreas);
 
-    Mat kernel;
-    Point anchor;
-    double delta = 0;
-    int ddepth = -1;
-    int kernel_size;
-    kernel_size = 9;
-    Mat thresh;
-    Mat img_bw;
-    kernel = Mat::ones(kernel_size, kernel_size, CV_32F) / (float)(kernel_size * kernel_size);
-    Mat blurred;
-    int threshhold = 90;
-    cvtColor(colored, img_bw, COLOR_BGR2GRAY);
-    GaussianBlur(img_bw, blurred, Size(5, 5), 0, 0);
-    threshold(blurred, thresh, threshhold, 255, THRESH_BINARY); //white
+	//Draw the contour and rectangle
+	int numContours = 5;
+	for (int i = 0; i < numContours; i++) {
+		drawContours(img_final, contours, i, Scalar(100, 255, 255), FILLED, 8, hierarchy);
+	}
+	
+	rectangle(img_final, bounding_rect, Scalar(0, 255, 0), 2, 8, 0);
+	namedWindow("Display Contours", WINDOW_NORMAL);
+	cv::resizeWindow("Display Contours", img_final.cols / 3, img_final.rows / 3);
+	imshow("Display Contours", img_final);
+	waitKey(0);
+	destroyAllWindows();
+	imwrite("Display Contours.png", img_final);
 
-    namedWindow("Right after thresholding", WINDOW_NORMAL);
-    cv::resizeWindow("Right after thresholding", thresh.cols / 3, thresh.rows / 3);
-    imshow("Right after thresholding", thresh);
-    waitKey();
-    imwrite("Right after thresholding.png", thresh);
+	Mat image_blurred;
+	medianBlur(img_1, image_blurred, 15);
+	namedWindow("Blurred imaged before switching pixels", WINDOW_NORMAL);
+	cv::resizeWindow("Blurred imaged before switching pixels", image_blurred.cols / 3, image_blurred.rows / 3);
+	imshow("Blurred imaged before switching pixels", image_blurred);
+	waitKey();
+	destroyAllWindows();
+	imwrite("Blurred imaged before switching pixels.png", image_blurred);
+	
+	for (int i = 0; i < thresh.rows - 3; i++) {
+		for (int j = 0; j < thresh.cols - 3; j++) {
+			if (img_final.at<uchar>(i, j) != 255 && img_final.at<uchar>(i, j) != 0) {
+				image_blurred.at<cv::Vec3b>(i, j)[0] = img_1.at<cv::Vec3b>(i, j)[0];
+				image_blurred.at<cv::Vec3b>(i, j)[1] = img_1.at<cv::Vec3b>(i, j)[1];
+				image_blurred.at<cv::Vec3b>(i, j)[2] = img_1.at<cv::Vec3b>(i, j)[2];
+			}
+		}
+	}
+	namedWindow("Blurred imaged based on depth", WINDOW_NORMAL);
+	cv::resizeWindow("Blurred imaged based on depth", image_blurred.cols / 3, image_blurred.rows / 3);
+	imshow("Blurred imaged based on depth", image_blurred);
+	
+	namedWindow("Original Image", WINDOW_NORMAL);
+	cv::resizeWindow("Original Image", img_1.cols / 3, img_1.rows / 3);
+	imshow("Original Image", img_1);
+	waitKey();
+	destroyAllWindows();
+	imwrite("Blurred imaged based on depth.png", image_blurred);
 
-    Mat img_final;
-    dilate(thresh, img_final, Mat(), Point(-1, -1), 2, 1, 1);
-
-    namedWindow("Dialation", WINDOW_NORMAL);
-    cv::resizeWindow("Dialation", img_final.cols / 3, img_final.rows / 3);
-    imshow("Dialation", img_final);
-    waitKey();
-    imwrite("Dialation.png", img_final);
-
-    // detect the contours on the binary image using cv2.CHAIN_APPROX_NONE
-    vector<vector<Point>> contours;
-    vector<Vec4i> hierarchy;
-    findContours(img_final, contours, hierarchy, RETR_LIST, CHAIN_APPROX_NONE);
-    // draw contours on the original image
-    drawContours(img_final, contours, -1, Scalar(0, 255, 0), 2);
-
-    namedWindow("contours", WINDOW_NORMAL);
-    cv::resizeWindow("contours", img_final.cols / 3, img_final.rows / 3);
-    imshow("contours", img_final);
-    waitKey(0);
-    destroyAllWindows();
-    imwrite("contours.png", img_final);
-
-    int largest_contour_index = 0;
-    int largest_area = 0;
-    Rect bounding_rect;
-
-    std::sort(contours.begin(), contours.end(), compareContourAreas);
-
-    //Draw the contour and rectangle
-    int numContours = 8;
-    for (int i = 0; i < numContours; i++) {
-        drawContours(img_final, contours, i, Scalar(100, 255, 255), FILLED, 8, hierarchy);
-    }
-
-    rectangle(img_final, bounding_rect, Scalar(0, 255, 0), 2, 8, 0);
-    namedWindow("Display Contours", WINDOW_NORMAL);
-    cv::resizeWindow("Display Contours", img_final.cols / 3, img_final.rows / 3);
-    imshow("Display Contours", img_final);
-    waitKey(0);
-    destroyAllWindows();
-    imwrite("Display Contours.png", img_final);
-
-    Mat image_blurred;
-    medianBlur(img_1, image_blurred, 15);
-    namedWindow("Blurred imaged before switching pixels", WINDOW_NORMAL);
-    cv::resizeWindow("Blurred imaged before switching pixels", image_blurred.cols / 3, image_blurred.rows / 3);
-    imshow("Blurred imaged before switching pixels", image_blurred);
-    waitKey();
-    destroyAllWindows();
-    imwrite("Blurred imaged before switching pixels.png", image_blurred);
-
-    for (int i = 0; i < thresh.rows - 3; i++) {
-        for (int j = 0; j < thresh.cols - 3; j++) {
-            if (img_final.at<uchar>(i, j) != 255 && img_final.at<uchar>(i, j) != 0) {
-                image_blurred.at<cv::Vec3b>(i, j)[0] = img_1.at<cv::Vec3b>(i, j)[0];
-                image_blurred.at<cv::Vec3b>(i, j)[1] = img_1.at<cv::Vec3b>(i, j)[1];
-                image_blurred.at<cv::Vec3b>(i, j)[2] = img_1.at<cv::Vec3b>(i, j)[2];
-            }
-        }
-    }
-    namedWindow("Blurred imaged based on depth", WINDOW_NORMAL);
-    cv::resizeWindow("Blurred imaged based on depth", image_blurred.cols / 3, image_blurred.rows / 3);
-    imshow("Blurred imaged based on depth", image_blurred);
-
-    namedWindow("Original Image", WINDOW_NORMAL);
-    cv::resizeWindow("Original Image", img_1.cols / 3, img_1.rows / 3);
-    imshow("Original Image", img_1);
-    waitKey();
-    destroyAllWindows();
-    imwrite("Blurred imaged based on depth.png", image_blurred);
-
-    finish_time = getTickCount(); //check processing time
-    printf("Elapsed Time : %.2lf sec \n", (finish_time - start_time) / getTickFrequency());         //check processing time  
-    cout << "-------------------------------------------------------------------------------" << endl;
+	finish_time = getTickCount(); //check processing time
+	printf("Elapsed Time : %.2lf sec \n", (finish_time - start_time) / getTickFrequency());         //check processing time  
+	cout << "-------------------------------------------------------------------------------" << endl;
 }
 
 int runDisparityMap(){
